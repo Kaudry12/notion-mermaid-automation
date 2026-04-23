@@ -33,9 +33,17 @@ function generateMermaid(tasks) {
   return code;
 }
 
-(async () => {
   const tasks = await getTasks();
   const mermaid = generateMermaid(tasks);
 
   fs.writeFileSync("diagram.mmd", mermaid);
 })();
+// Bloc à ajouter tout en bas :
+getTasks().then(tasks => {
+    const mermaidCode = generateMermaid(tasks);
+    fs.writeFileSync("diagram.mmd", mermaidCode);
+    console.log("Diagramme généré avec succès !");
+}).catch(err => {
+    console.error("Erreur détectée :", err);
+    process.exit(1);
+});
