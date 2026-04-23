@@ -1,0 +1,38 @@
+name: Update Mermaid Diagram
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # chaque heure
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - run: npm install node-fetch
+
+      - run: node script.js
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          DATABASE_ID: ${{ secrets.DATABASE_ID }}
+
+      - name: Inject Mermaid into HTML
+        run: |
+          CODE=$(cat diagram.mmd)
+          sed -i "s|graph TD.*|$CODE|g" index.html
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "bot"
+          git config --global user.email "bot@example.com"
+          git add .
+          git commit -m "update diagram" || echo "no changes"
+          git push
